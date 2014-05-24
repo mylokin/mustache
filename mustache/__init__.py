@@ -4,7 +4,6 @@ import os
 import re
 
 from django.conf import settings
-from django.utils.encoding import smart_text
 
 TEMPLATES_DIR = os.path.join(settings.PROJECT_PATH, 'templates/mustache/')
 PARTIAL_REGEXS = (
@@ -70,6 +69,12 @@ def get_value(name, context):
 
 def escape_braces(value):
     return value.replace('{', '&#123;').replace('}', '&#125;')
+
+
+def smart_text(value, encoding='utf-8'):
+    if isinstance(value, unicode):
+        value = value.encode(encoding)
+    return value
 
 
 def escape(value):
