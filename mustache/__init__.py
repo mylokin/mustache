@@ -3,9 +3,7 @@ import collections
 import os
 import re
 
-# from django.conf import settings
-
-TEMPLATES_DIR = ''  # os.path.join(settings.PROJECT_PATH, 'templates/mustache/')
+TEMPLATES_DIR = ''
 PARTIAL_REGEXS = (
     re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M),
     re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})'),
