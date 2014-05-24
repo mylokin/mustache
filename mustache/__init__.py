@@ -3,6 +3,8 @@ import collections
 import os
 import re
 
+from . import utils
+
 TEMPLATES_DIR = ''
 Block = collections.namedtuple('Block', ['open', 'close'])
 delimiter = Block('{{', '}}')
@@ -11,10 +13,6 @@ delimiter = Block('{{', '}}')
 class Syntax(object):
     PARTIAL = re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})')
     PARTIAL_CUSTOM = re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M)
-
-    COMMENT = re.compile('({{!.*?}})', re.S)
-    COMMENT_STANDALONE = re.compile('^(\s*{{!.*?}})\s*\r?\n?', re.S | re.M)
-    STANDALONE = re.compile('^(?P<whitespace>\s*(?P<tag>{{[#>^/]\s*[\w\d\.]+\s*}})\r?\n)', re.M)
 
 
 def load_template(path, ext='html', prepare=True, partials=None):
@@ -44,12 +42,7 @@ def process(template, partials=None):
                     substitution = substitution[len(match.group('whitespace')):]
 
             template = template.replace(match.group('tag'), substitution)
-    template = Syntax.COMMENT_STANDALONE.sub('', template)
-    template = Syntax.COMMENT.sub('', template)
-    template = Syntax.STANDALONE.sub('\g<tag>', template)
-    if template.endswith('\n'):
-        template = template[:-1]
-    return template
+    return utils.purify(template)
 
 
 def get_value(name, context):
