@@ -4,15 +4,16 @@ import os
 import re
 
 TEMPLATES_DIR = ''
-PARTIAL_REGEXS = (
-    re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M),
-    re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})'),
-)
 STANDALONE_COMMENT_REGEX = re.compile('^(\s*{{!.*?}})\s*\r?\n?', re.S | re.M)
 COMMENT_REGEX = re.compile('({{!.*?}})', re.S)
 STANDALONE_REGEX = re.compile('^(?P<whitespace>\s*(?P<tag>{{[#>^/]\s*[\w\d\.]+\s*}})\r?\n)', re.M)
 Block = collections.namedtuple('Block', ['open', 'close'])
 delimiter = Block('{{', '}}')
+
+
+class Syntax(object):
+    PARTIAL = re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})')
+    PARTIAL_CUSTOM = re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M)
 
 
 def load_template(path, ext='html', prepare=True, partials=None):
@@ -26,7 +27,7 @@ def load_template(path, ext='html', prepare=True, partials=None):
 
 def process(template, partials=None):
     template = '{}\n'.format(template)
-    for regex in PARTIAL_REGEXS:
+    for regex in [Syntax.PARTIAL_CUSTOM, Syntax.PARTIAL]:
         for match in regex.finditer(template):
             if partials is None:
                 substitution = load_template(match.group('name'))
