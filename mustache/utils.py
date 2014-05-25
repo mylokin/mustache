@@ -14,3 +14,18 @@ def purify(template):
     if template.endswith('\n'):
         template = template[:-1]
     return template
+
+
+def get_value(context, name):
+    name = name.strip()
+    if '.' not in name:
+        return context.get(name, '')
+
+    value = context
+    for namespace in name.split('.'):
+        try:
+            value = value[namespace]
+        except KeyError:
+            value = ''
+            break
+    return value

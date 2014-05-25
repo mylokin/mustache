@@ -45,21 +45,6 @@ def process(template, partials=None):
     return utils.purify(template)
 
 
-def get_value(name, context):
-    name = name.strip()
-    if '.' not in name:
-        return context.get(name, '')
-
-    value = context
-    for namespace in name.split('.'):
-        try:
-            value = value[namespace]
-        except KeyError:
-            value = ''
-            break
-    return value
-
-
 def escape_braces(value):
     return value.replace('{', '&#123;').replace('}', '&#125;')
 
@@ -101,7 +86,7 @@ def render(buf, context):
                 diff = buf_slice.count(tag_open_positive) + buf_slice.count(tag_open_negative) - buf_slice.count(tag_close)
             tag = buf[start: stop]
 
-            value = get_value(name, context)
+            value = utils.get_value(context, name)
             if (value and type_ == '^') or (not value and type_ == '#'):
                 buf = buf.replace(tag, '')
                 continue
@@ -127,20 +112,20 @@ def render(buf, context):
         elif type_ == '{':
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '{', name, '}', delimiter.close))
-            value = get_value(name, context)
+            value = utils.get_value(context, name)
             buf = buf.replace(tag, escape_braces(smart_text(value)), 1)
             continue
         elif type_ == '&':
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '&', name, delimiter.close))
-            value = get_value(name, context)
+            value = utils.get_value(context, name)
             buf = buf.replace(tag, escape_braces(smart_text(value)), 1)
             continue
         elif type_ == '>':
             raise ValueError(u'Partials should be pre-processed: {}'.format(buf[pos.open:pos.close + len(delimiter.close)]))
         else:
             name = buf[pos.open + len(delimiter.open): pos.close]
-            value = escape(get_value(name, context))
+            value = escape(utils.get_value(context, name))
             tag = u''.join((delimiter.open, name, delimiter.close))
             buf = buf.replace(tag, smart_text(value), 1)
             continue
