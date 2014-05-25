@@ -29,3 +29,9 @@ def get_value(context, name):
             value = ''
             break
     return value
+
+
+def smart_text(value, encoding='utf-8'):
+    if isinstance(value, unicode):
+        value = value.encode(encoding)
+    return str(value)

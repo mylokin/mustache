@@ -49,14 +49,8 @@ def escape_braces(value):
     return value.replace('{', '&#123;').replace('}', '&#125;')
 
 
-def smart_text(value, encoding='utf-8'):
-    if isinstance(value, unicode):
-        value = value.encode(encoding)
-    return str(value)
-
-
 def escape(value):
-    return escape_braces(cgi.escape(smart_text(value), quote=True))
+    return escape_braces(cgi.escape(utils.smart_text(value), quote=True))
 
 
 def render(buf, context):
@@ -113,13 +107,13 @@ def render(buf, context):
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '{', name, '}', delimiter.close))
             value = utils.get_value(context, name)
-            buf = buf.replace(tag, escape_braces(smart_text(value)), 1)
+            buf = buf.replace(tag, escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '&':
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '&', name, delimiter.close))
             value = utils.get_value(context, name)
-            buf = buf.replace(tag, escape_braces(smart_text(value)), 1)
+            buf = buf.replace(tag, escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '>':
             raise ValueError(u'Partials should be pre-processed: {}'.format(buf[pos.open:pos.close + len(delimiter.close)]))
@@ -127,7 +121,7 @@ def render(buf, context):
             name = buf[pos.open + len(delimiter.open): pos.close]
             value = escape(utils.get_value(context, name))
             tag = u''.join((delimiter.open, name, delimiter.close))
-            buf = buf.replace(tag, smart_text(value), 1)
+            buf = buf.replace(tag, utils.smart_text(value), 1)
             continue
 
     return buf
