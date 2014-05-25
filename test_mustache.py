@@ -1,4 +1,5 @@
 import unittest
+import json
 import mustache
 
 
@@ -661,6 +662,39 @@ class TestInterpolation(unittest.TestCase):
         context = {u'string': u'---'}
         rendered = mustache.render(template, context)
         self.assertEqual(rendered, u'|---|')
+
+
+class TestSpec(unittest.TestCase):
+    PATH = 'tests/specs/{}.json'
+
+    def __spec_test(self, test_suite):
+        with open(self.PATH.format(test_suite), 'r') as fp:
+            suite = json.loads(fp.read())
+        tests = suite['tests']
+        for test in tests:
+            template = mustache.build(test['template'], test.get('partials'))
+            self.assertEqual(mustache.render(template, test['data']), test['expected'])
+
+    def test_comments(self):
+        self.__spec_test('comments')
+
+    def test_delimiters(self):
+        self.__spec_test('delimiters')
+
+    def test_interpolation(self):
+        self.__spec_test('interpolation')
+
+    def testinverted(self):
+        self.__spec_test('inverted')
+
+    def test_partials(self):
+        self.__spec_test('partials')
+
+    def test_sections(self):
+        self.__spec_test('sections')
+
+    def test_lambdas(self):
+        self.__spec_test('~lambdas')
 
 
 if __name__ == '__main__':
