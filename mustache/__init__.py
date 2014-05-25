@@ -6,7 +6,7 @@ from . import utils
 
 TEMPLATES_DIR = ''
 Block = collections.namedtuple('Block', ['open', 'close'])
-delimiter = Block('{{', '}}')
+Delimiter = Block('{{', '}}')
 
 
 class Syntax(object):
@@ -45,20 +45,20 @@ def process(template, partials=None):
 
 
 def render(buf, context):
-    while delimiter.open in buf and delimiter.close in buf:
-        pos = Block(buf.index(delimiter.open), buf.index(delimiter.close))
-        type_ = buf[pos.open + len(delimiter.open)]
+    while Delimiter.open in buf and Delimiter.close in buf:
+        pos = Block(buf.index(Delimiter.open), buf.index(Delimiter.close))
+        type_ = buf[pos.open + len(Delimiter.open)]
         if type_ in ('#', '^'):
-            name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
+            name = buf[pos.open + len(Delimiter.open) + len(type_): pos.close]
 
-            tag_open = buf[pos.open: pos.close + len(delimiter.close)]
+            tag_open = buf[pos.open: pos.close + len(Delimiter.close)]
             if type_ == '#':
                 tag_open_positive = tag_open
                 tag_open_negative = tag_open.replace('#', '^', 1)
             else:
                 tag_open_positive = tag_open.replace('^', '#', 1)
                 tag_open_negative = tag_open
-            tag_close = u''.join((delimiter.open, '/', name, delimiter.close))
+            tag_close = u''.join((Delimiter.open, '/', name, Delimiter.close))
 
             start = buf.index(tag_open)
             stop = buf.index(tag_close) + len(tag_close)
@@ -93,25 +93,25 @@ def render(buf, context):
                 raise ValueError(u'Cannot replace tag: {} {}'.format(tag, value))
 
         elif type_ == '/':
-            raise ValueError(u'Unexpected close tag: {}'.format(buf[pos.open:pos.close + len(delimiter.close)]))
+            raise ValueError(u'Unexpected close tag: {}'.format(buf[pos.open:pos.close + len(Delimiter.close)]))
         elif type_ == '{':
-            name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
-            tag = u''.join((delimiter.open, '{', name, '}', delimiter.close))
+            name = buf[pos.open + len(Delimiter.open) + len(type_): pos.close]
+            tag = u''.join((Delimiter.open, '{', name, '}', Delimiter.close))
             value = utils.get_value(context, name)
             buf = buf.replace(tag, utils.escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '&':
-            name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
-            tag = u''.join((delimiter.open, '&', name, delimiter.close))
+            name = buf[pos.open + len(Delimiter.open) + len(type_): pos.close]
+            tag = u''.join((Delimiter.open, '&', name, Delimiter.close))
             value = utils.get_value(context, name)
             buf = buf.replace(tag, utils.escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '>':
-            raise ValueError(u'Partials should be pre-processed: {}'.format(buf[pos.open:pos.close + len(delimiter.close)]))
+            raise ValueError(u'Partials should be pre-processed: {}'.format(buf[pos.open:pos.close + len(Delimiter.close)]))
         else:
-            name = buf[pos.open + len(delimiter.open): pos.close]
+            name = buf[pos.open + len(Delimiter.open): pos.close]
             value = utils.escape(utils.get_value(context, name))
-            tag = u''.join((delimiter.open, name, delimiter.close))
+            tag = u''.join((Delimiter.open, name, Delimiter.close))
             buf = buf.replace(tag, utils.smart_text(value), 1)
             continue
 
