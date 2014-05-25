@@ -673,7 +673,9 @@ class TestSpec(unittest.TestCase):
         tests = suite['tests']
         for test in tests:
             template = mustache.build(test['template'], test.get('partials'))
-            self.assertEqual(mustache.render(template, test['data']), test['expected'])
+            result = mustache.render(template, test['data'])
+            msg = '{}: {} != {}'.format(test['desc'], repr(str(test['expected'])), repr(str(result)))
+            self.assertEqual(result, test['expected'], msg)
 
     def test_comments(self):
         self.__spec_test('comments')
