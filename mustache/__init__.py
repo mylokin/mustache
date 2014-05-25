@@ -1,47 +1,11 @@
 import collections
-import os
-import re
+from . import (
+    template,
+    utils,
+)
 
-from . import utils
-
-TEMPLATES_DIR = ''
 Block = collections.namedtuple('Block', ['open', 'close'])
 Delimiter = Block('{{', '}}')
-
-
-class Syntax(object):
-    PARTIAL = re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})')
-    PARTIAL_CUSTOM = re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M)
-
-
-def load_template(path, ext='html', prepare=True, partials=None):
-    path = os.path.join(TEMPLATES_DIR, '{}.{}'.format(path, ext))
-    with open(path, 'r') as fp:
-        template = fp.read()
-    if prepare:
-        template = process(template, partials)
-    return template
-
-
-def process(template, partials=None):
-    template = '{}\n'.format(template)
-    for regex in [Syntax.PARTIAL_CUSTOM, Syntax.PARTIAL]:
-        for match in regex.finditer(template):
-            if partials is None:
-                substitution = load_template(match.group('name'))
-            else:
-                substitution = partials.get(match.group('name'), u'')
-
-            if substitution:
-                try:
-                    substitution = '\n'.join('{}{}'.format(match.group('whitespace'), s) if s else s for s in substitution.split('\n'))
-                except IndexError:
-                    pass
-                else:
-                    substitution = substitution[len(match.group('whitespace')):]
-
-            template = template.replace(match.group('tag'), substitution)
-    return utils.purify(template)
 
 
 def render(buf, context):
