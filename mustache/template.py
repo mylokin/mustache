@@ -7,11 +7,11 @@ PARTIAL = re.compile('(?P<tag>{{>\s*(?P<name>.+?)\s*}})')
 PARTIAL_CUSTOM = re.compile('^(?P<whitespace>\s*)(?P<tag>{{>\s*(?P<name>.+?)\s*}}(?(1)\r?\n?))', re.M)
 
 
-def get_template(path, ext='html', partials=None):
-    path = os.path.join(TEMPLATES_DIR, '{}.{}'.format(path, ext))
-    with open(path, 'r') as fp:
-        template = fp.read()
-    return build(template, partials)
+# def get_template(path, ext='html', partials=None):
+#     path = os.path.join(TEMPLATES_DIR, '{}.{}'.format(path, ext))
+#     with open(path, 'r') as fp:
+#         template = fp.read()
+#     return build(template, partials)
 
 
 def build(template, partials=None):
