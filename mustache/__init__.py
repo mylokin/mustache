@@ -1,4 +1,3 @@
-import cgi
 import collections
 import os
 import re
@@ -43,14 +42,6 @@ def process(template, partials=None):
 
             template = template.replace(match.group('tag'), substitution)
     return utils.purify(template)
-
-
-def escape_braces(value):
-    return value.replace('{', '&#123;').replace('}', '&#125;')
-
-
-def escape(value):
-    return escape_braces(cgi.escape(utils.smart_text(value), quote=True))
 
 
 def render(buf, context):
@@ -107,19 +98,19 @@ def render(buf, context):
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '{', name, '}', delimiter.close))
             value = utils.get_value(context, name)
-            buf = buf.replace(tag, escape_braces(utils.smart_text(value)), 1)
+            buf = buf.replace(tag, utils.escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '&':
             name = buf[pos.open + len(delimiter.open) + len(type_): pos.close]
             tag = u''.join((delimiter.open, '&', name, delimiter.close))
             value = utils.get_value(context, name)
-            buf = buf.replace(tag, escape_braces(utils.smart_text(value)), 1)
+            buf = buf.replace(tag, utils.escape_braces(utils.smart_text(value)), 1)
             continue
         elif type_ == '>':
             raise ValueError(u'Partials should be pre-processed: {}'.format(buf[pos.open:pos.close + len(delimiter.close)]))
         else:
             name = buf[pos.open + len(delimiter.open): pos.close]
-            value = escape(utils.get_value(context, name))
+            value = utils.escape(utils.get_value(context, name))
             tag = u''.join((delimiter.open, name, delimiter.close))
             buf = buf.replace(tag, utils.smart_text(value), 1)
             continue

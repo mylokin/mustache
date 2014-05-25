@@ -1,3 +1,4 @@
+import cgi
 import re
 
 
@@ -35,3 +36,11 @@ def smart_text(value, encoding='utf-8'):
     if isinstance(value, unicode):
         value = value.encode(encoding)
     return str(value)
+
+
+def escape_braces(value):
+    return value.replace('{', '&#123;').replace('}', '&#125;')
+
+
+def escape(value):
+    return escape_braces(cgi.escape(smart_text(value), quote=True))
